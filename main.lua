@@ -1,7 +1,10 @@
 --[[
 	New Dex
 	Final Version
+
+	Maintained by @ILiekCarot
 	Developed by Moon
+	Contributions skidded off Infinite Yield: @Toon-arch & @joeengo
 	
 	Dex is a debugging suite designed to help the user debug games and find any potential vulnerabilities.
 	
@@ -97,7 +100,7 @@ local Settings = {}
 local Apps = {}
 local env = {}
 local service = setmetatable({},{__index = function(self,name)
-	local serv = game:GetService(name)
+	local serv = cloneref(game:GetService(name))
 	self[name] = serv
 	return serv
 end})
@@ -134,12 +137,11 @@ Main = (function()
 	Main.ModuleList = {"Explorer","Properties","ScriptViewer"}
 	Main.Elevated = false
 	Main.MissingEnv = {}
-	Main.Version = "Beta 1.0.0"
+	Main.Version = "" -- Beta 1.0.0
 	Main.Mouse = plr:GetMouse()
 	Main.AppControls = {}
 	Main.Apps = Apps
 	Main.MenuApps = {}
-	Main.GitRepoName = "LorekeeperZinnia/Dex"
 	
 	Main.DisplayOrders = {
 		SideWindow = 8,
@@ -181,47 +183,7 @@ Main = (function()
 			if EmbeddedModules then -- Offline Modules
 				control = EmbeddedModules[name]()
 				
-				-- TODO: Remove when open source
-				if gethsfuncs then
-					control = _G.moduleData
-				end
-				
 				if not control then Main.Error("Missing Embedded Module: "..name) end
-			elseif _G.DebugLoadModel then -- Load Debug Model File
-				local model = Main.DebugModel
-				if not model then model = game:GetObjects(getsynasset("AfterModules.rbxm"))[1] end
-				
-				control = loadstring(model.Modules[name].Source)()
-				print("Locally Loaded Module",name,control)
-			else
-				-- Get hash data
-				local hashs = Main.ModuleHashData
-				if not hashs then
-					local s,hashDataStr = pcall(game.HttpGet, game, "https://api.github.com/repos/"..Main.GitRepoName.."/ModuleHashs.dat")
-					if not s then Main.Error("Failed to get module hashs") end
-					
-					local s,hashData = pcall(service.HttpService.JSONDecode,service.HttpService,hashDataStr)
-					if not s then Main.Error("Failed to decode module hash JSON") end
-					
-					hashs = hashData
-					Main.ModuleHashData = hashs
-				end
-				
-				-- Check if local copy exists with matching hashs
-				local hashfunc = (syn and syn.crypt.hash) or function() return "" end
-				local filePath = "dex/ModuleCache/"..name..".lua"
-				local s,moduleStr = pcall(env.readfile,filePath)
-				
-				if s and hashfunc(moduleStr) == hashs[name] then
-					control = loadstring(moduleStr)()
-				else
-					-- Download and cache
-					local s,moduleStr = pcall(game.HttpGet, game, "https://api.github.com/repos/"..Main.GitRepoName.."/Modules/"..name..".lua")
-					if not s then Main.Error("Failed to get external module data of "..name) end
-					
-					env.writefile(filePath,moduleStr)
-					control = loadstring(moduleStr)()
-				end
 			end
 			
 			Main.AppControls[name] = control
@@ -272,98 +234,70 @@ Main = (function()
 			end
 		end
 	end
-	
-	Main.InitEnv = function()
-		setmetatable(env,{__newindex = function(self,name,func)
-			if not func then Main.MissingEnv[#Main.MissingEnv+1] = name return end
-			rawset(self,name,func)
-		end})
-		
-		-- file
-		env.readfile = readfile
-		env.writefile = writefile
-		env.appendfile = appendfile
-		env.makefolder = makefolder
-		env.listfiles = listfiles
-		env.loadfile = loadfile
-		env.saveinstance = saveinstance
-		
-		-- debug
-		env.getupvalues = debug.getupvalues or getupvals
-		env.getconstants = debug.getconstants or getconsts
-		env.islclosure = islclosure or is_l_closure
-		env.checkcaller = checkcaller
-		env.getreg = getreg
-		env.getgc = getgc
-		
-		-- other
-		env.setfflag = setfflag
-		env.decompile = decompile
-		env.protectgui = protect_gui or (syn and syn.protect_gui)
-		env.gethui = gethui
-		env.setclipboard = setclipboard
-		env.getnilinstances = getnilinstances or get_nil_instances
-		env.getloadedmodules = getloadedmodules
-		
-		if identifyexecutor then
-			Main.Executor = identifyexecutor()
-		end
-		
-		Main.GuiHolder = Main.Elevated and service.CoreGui or plr:FindFirstChildOfClass("PlayerGui")
-		
-		setmetatable(env,nil)
-	end
-	
-	--[[
-	Main.IncompatibleTest = function()
-		local function incompatibleMessage(reason)
-			local msg = Instance.new("ScreenGui")
-			local t = Instance.new("TextLabel",msg)
-			t.BackgroundColor3 = Color3.fromRGB(50,50,50)
-			t.Position = UDim2.new(0,0,0,-36)
-			t.Size = UDim2.new(1,0,1,36)
-			t.TextColor3 = Color3.new(1,1,1)
-			t.TextWrapped = true
-			t.TextScaled = true
-			t.Text = "\n\n\n\n\n\n\n\nHello Skidsploit user,\nZinnia and the Secret Service does not approve of Dex being used on your skidsploit.\nPlease consider getting something better.\n\nIncompatible Reason: "..reason.."\n\n\n\n\n\n\n\n"
-			
-			local sound = Instance.new("Sound",msg)
-			sound.SoundId = "rbxassetid://175964948"
-			sound.Volume = 1
-			sound.Looped = true
-			sound.Playing = true
-			Lib.ShowGui(msg)
-			
-			if os and os.execute then pcall(os.execute,'explorer "https://x.synapse.to/"') end
-			while wait() do end
-		end
-		
-		local t = {}
-		t[1] = t
-		local x = unpack(t) or incompatibleMessage("WRAPPER FAILED TO CYCLIC #1")
-		if x[1] ~= t then incompatibleMessage("WRAPPER FAILED TO CYCLIC #2") end
-		
-		if game ~= workspace.Parent then incompatibleMessage("WRAPPER NO CACHE") end
-		
-		if Main.Elevated and not loadstring("for i = 1,1 do continue end") then incompatibleMessage("CAN'T CONTINUE OR NO LOADSTRING") end
-		
-		local obj = newproxy(true)
-		local mt = getmetatable(obj)
-		mt.__index = function() incompatibleMessage("CAN'T NAMECALL") end
-		mt.__namecall = function() end
-		obj:No()
-		
-		local fEnv = setmetatable({zin = 5},{__index = getfenv()})
-		local caller = function(f) f() end
-		setfenv(caller,fEnv)
-		caller(function() if not getfenv(2).zin then incompatibleMessage("RERU WILL BE FILING A LAWSUIT AGAINST YOU SOON") end end)
-		
-		local second = false
-		coroutine.wrap(function() local start = tick() wait(5) if tick() - start < 0.1 or not second then incompatibleMessage("SKIDDED YIELDING") end end)()
-		second = true
-	end
-	]]
-	
+
+    Main.InitEnv = function()
+        setmetatable(env, {__newindex = function(self, name, func)
+            if not func then Main.MissingEnv[#Main.MissingEnv + 1] = name return end
+            rawset(self, name, func)
+        end})
+
+        -- file
+        env.readfile = readfile
+        env.writefile = writefile
+        env.appendfile = appendfile
+        env.makefolder = makefolder
+        env.listfiles = listfiles
+        env.loadfile = loadfile
+        env.movefileas = movefileas
+        env.saveinstance = saveinstance
+
+        -- debug
+        env.getupvalues = (debug and debug.getupvalues) or getupvalues or getupvals
+        env.getconstants = (debug and debug.getconstants) or getconstants or getconsts
+        env.getinfo = (debug and (debug.getinfo or debug.info)) or getinfo
+        env.islclosure = islclosure or is_l_closure or is_lclosure
+        env.checkcaller = checkcaller
+        --env.getreg = getreg
+        env.getgc = getgc or get_gc_objects
+        env.getscriptbytecode = getscriptbytecode
+
+        -- other
+        --env.setfflag = setfflag
+        env.request = (syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request
+        env.decompile = decompile or (env.getscriptbytecode and env.request and function(scr)
+            local s, bytecode = pcall(env.getscriptbytecode, scr)
+            if not s then
+                return "failed to get bytecode " .. tostring(bytecode)
+            end
+
+            local response = env.request({
+                Url = "http://api.plusgiant5.com/konstant/decompile",
+                Method = "POST",
+                Headers = {
+                    ["Content-Type"] = "text/plain"
+                },
+                Body = bytecode
+            })
+
+            if (httpResult.StatusCode ~= 200) then
+				return `-- Error occured while requesting the API, error:\n\n--[[\n{httpResult.Body}\n--]]`
+			else
+				return httpResult.Body
+			end
+        end)
+        env.protectgui = protect_gui or (syn and syn.protect_gui)
+        env.gethui = gethui or get_hidden_gui
+        env.setclipboard = setclipboard or toclipboard or set_clipboard or (Clipboard and Clipboard.set)
+        env.getnilinstances = getnilinstances or get_nil_instances
+        env.getloadedmodules = getloadedmodules
+
+        -- if identifyexecutor and type(identifyexecutor) == "function" then Main.Executor = identifyexecutor() end
+
+        Main.GuiHolder = Main.Elevated and service.CoreGui or plr:FindFirstChildWhichIsA("PlayerGui")
+
+        setmetatable(env, nil)
+    end
+
 	Main.LoadSettings = function()
 		local s,data = pcall(env.readfile or error,"DexSettings.json")
 		if s and data and data ~= "" then
@@ -659,14 +593,18 @@ Main = (function()
 		
 		return {Classes = classes, Enums = enums, PropertyOrders = propertyOrders}
 	end
-	
-	Main.ShowGui = function(gui)
-		if env.protectgui then
-			env.protectgui(gui)
-		end
-		gui.Parent = Main.GuiHolder
-	end
-	
+
+    Main.ShowGui = function(gui)
+        if env.gethui then
+            gui.Parent = env.gethui()
+        elseif env.protectgui then
+            env.protectgui(gui)
+            gui.Parent = Main.GuiHolder
+        else
+            gui.Parent = Main.GuiHolder
+        end
+    end
+
 	Main.CreateIntro = function(initStatus) -- TODO: Must theme and show errors
 		local gui = create({
 			{1,"ScreenGui",{Name="Intro",}},
@@ -681,7 +619,7 @@ Main = (function()
 			{10,"ImageLabel",{BackgroundColor3=Color3.new(1,1,1),BackgroundTransparency=1,Image="rbxassetid://2764171053",ImageColor3=Color3.new(0.17647059261799,0.17647059261799,0.17647059261799),Parent={8},ScaleType=1,Size=UDim2.new(1,0,1,0),SliceCenter=Rect.new(2,2,254,254),}},
 			{11,"TextLabel",{BackgroundColor3=Color3.new(1,1,1),BackgroundTransparency=1,Font=3,Name="Creator",Parent={2},Position=UDim2.new(1,-110,1,-20),Size=UDim2.new(0,105,0,20),Text="Developed by Moon",TextColor3=Color3.new(1,1,1),TextSize=14,TextXAlignment=1,}},
 			{12,"UIGradient",{Parent={11},Transparency=NumberSequence.new({NumberSequenceKeypoint.new(0,1,0),NumberSequenceKeypoint.new(1,1,0),}),}},
-			{13,"TextLabel",{BackgroundColor3=Color3.new(1,1,1),BackgroundTransparency=1,Font=3,Name="Version",Parent={2},Position=UDim2.new(1,-110,1,-35),Size=UDim2.new(0,105,0,20),Text="Beta 1.0.0",TextColor3=Color3.new(1,1,1),TextSize=14,TextXAlignment=1,}},
+			{13,"TextLabel",{BackgroundColor3=Color3.new(1,1,1),BackgroundTransparency=1,Font=3,Name="Version",Parent={2},Position=UDim2.new(1,-110,1,-35),Size=UDim2.new(0,105,0,20),Text=Main.Version,TextColor3=Color3.new(1,1,1),TextSize=14,TextXAlignment=1,}},
 			{14,"UIGradient",{Parent={13},Transparency=NumberSequence.new({NumberSequenceKeypoint.new(0,1,0),NumberSequenceKeypoint.new(1,1,0),}),}},
 			{15,"ImageLabel",{BackgroundColor3=Color3.new(1,1,1),BackgroundTransparency=1,BorderSizePixel=0,Image="rbxassetid://1427967925",Name="Outlines",Parent={2},Position=UDim2.new(0,-5,0,-5),ScaleType=1,Size=UDim2.new(1,10,1,10),SliceCenter=Rect.new(6,6,25,25),TileSize=UDim2.new(0,20,0,20),}},
 			{16,"UIGradient",{Parent={15},Rotation=-30,Transparency=NumberSequence.new({NumberSequenceKeypoint.new(0,1,0),NumberSequenceKeypoint.new(1,1,0),}),}},
@@ -989,15 +927,29 @@ Main = (function()
 		Main.CreateApp({Name = "Properties", IconMap = Main.LargeIcons, Icon = "Properties", Open = true, Window = Properties.Window})
 		
 		Main.CreateApp({Name = "Script Viewer", IconMap = Main.LargeIcons, Icon = "Script_Viewer", Window = ScriptViewer.Window})
+
+		local cptsOnMouseClick = nil
+		Main.CreateApp({Name = "Click part to select", IconMap = Main.LargeIcons, Icon = 6, OnClick = function(callback)
+			if callback then
+				local mouse = Main.Mouse
+				cptsOnMouseClick = mouse.Button1Down:Connect(function()
+					pcall(function()
+						local object = mouse.Target
+						if nodes[object] then
+							selection:Set(nodes[object])
+							Explorer.ViewNode(nodes[object])
+						end
+					end)
+				end)
+			else if cptsOnMouseClick ~= nil then cptsOnMouseClick:Disconnect() cptsOnMouseClick = nil end end
+		end})
 		
 		Lib.ShowGui(gui)
 	end
 	
 	Main.SetupFilesystem = function()
 		if not env.writefile or not env.makefolder then return end
-		
-		local writefile,makefolder = env.writefile,env.makefolder
-		
+		local writefile, makefolder = env.writefile, env.makefolder
 		makefolder("dex")
 		makefolder("dex/assets")
 		makefolder("dex/saved")
@@ -1010,7 +962,7 @@ Main = (function()
 	end
 	
 	Main.Init = function()
-		Main.Elevated = pcall(function() local a = game:GetService("CoreGui"):GetFullName() end)
+		Main.Elevated = pcall(function() local a = cloneref(game:GetService("CoreGui")):GetFullName() end)
 		Main.InitEnv()
 		Main.LoadSettings()
 		Main.SetupFilesystem()
@@ -1100,5 +1052,3 @@ end)()
 
 -- Start
 Main.Init()
-
---for i,v in pairs(Main.MissingEnv) do print(i,v) end
