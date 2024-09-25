@@ -28,4 +28,4 @@ jobs:
       with:
         name: Latest
         path: |
-          flourine.py
+          flourine.lua
