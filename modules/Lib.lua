@@ -417,11 +417,15 @@ local function main()
 	Lib.ProtectedGuis = {}
 
 	Lib.ShowGui = function(gui)
-		if env.protectgui then
-			env.protectgui(gui)
-		end
-		gui.Parent = Main.GuiHolder
-	end
+        if env.gethui then
+            gui.Parent = env.gethui()
+        elseif env.protectgui then
+            env.protectgui(gui)
+            gui.Parent = Main.GuiHolder
+        else
+            gui.Parent = Main.GuiHolder
+        end
+    end
 
 	Lib.ColorToBytes = function(col)
 		local round = math.round
@@ -1265,7 +1269,7 @@ local function main()
 
 					guiDragging = true
 
-					releaseEvent = game:GetService("UserInputService").InputEnded:Connect(function(input)
+					releaseEvent = cloneref(game:GetService("UserInputService")).InputEnded:Connect(function(input)
 						if input.UserInputType == Enum.UserInputType.MouseButton1 then
 							releaseEvent:Disconnect()
 							mouseEvent:Disconnect()
@@ -1278,7 +1282,7 @@ local function main()
 						end
 					end)
 
-					mouseEvent = game:GetService("UserInputService").InputChanged:Connect(function(input)
+					mouseEvent = cloneref(game:GetService("UserInputService")).InputChanged:Connect(function(input)
 						if input.UserInputType == Enum.UserInputType.MouseMovement and self.Draggable and not self.Closed then
 							if self.Aligned then
 								if leftSide.Resizing or rightSide.Resizing then return end
@@ -1749,7 +1753,7 @@ local function main()
 			if not silent then
 				side.Hidden = false
 			end
-			updateWindows(silent)
+			-- updateWindows(silent)
 		end
 
 		funcs.Close = function(self)
@@ -2655,7 +2659,7 @@ local function main()
 						end
 					end)
 
-					scrollEvent = game:GetService("RunService").RenderStepped:Connect(function()
+					scrollEvent = cloneref(game:GetService("RunService")).RenderStepped:Connect(function()
 						if scrollPowerV ~= 0 or scrollPowerH ~= 0 then
 							obj:ScrollDelta(scrollPowerH,scrollPowerV)
 							updateSelection()
@@ -4217,8 +4221,8 @@ local function main()
 			local greenInput = pickerFrame.Green.Input
 			local blueInput = pickerFrame.Blue.Input
 
-			local user = game:GetService("UserInputService")
-			local mouse = game:GetService("Players").LocalPlayer:GetMouse()
+			local user = cloneref(game:GetService("UserInputService"))
+			local mouse = cloneref(game:GetService("UserInputService")).LocalPlayer:GetMouse()
 
 			local hue,sat,val = 0,0,1
 			local red,green,blue = 1,1,1
@@ -4601,8 +4605,8 @@ local function main()
 			local currentPoint = nil
 			local resetSequence = nil
 
-			local user = game:GetService("UserInputService")
-			local mouse = game:GetService("Players").LocalPlayer:GetMouse()
+			local user = cloneref(game:GetService("UserInputService"))
+			local mouse = cloneref(game:GetService("UserInputService")).LocalPlayer:GetMouse()
 
 			for i = 2,10 do
 				local newLine = Instance.new("Frame")
@@ -5076,8 +5080,8 @@ local function main()
 			local closeButton = pickerFrame.Close
 			local topClose = pickerTopBar.Close
 
-			local user = game:GetService("UserInputService")
-			local mouse = game:GetService("Players").LocalPlayer:GetMouse()
+			local user = cloneref(game:GetService("UserInputService"))
+			local mouse = cloneref(game:GetService("UserInputService")).LocalPlayer:GetMouse()
 
 			local colors = {{Color3.new(1,0,1),0},{Color3.new(0.2,0.9,0.2),0.2},{Color3.new(0.4,0.5,0.9),0.7},{Color3.new(0.6,1,1),1}}
 			local resetSequence = nil
@@ -5343,7 +5347,7 @@ local function main()
 	end)()
 
 	Lib.ViewportTextBox = (function()
-		local textService = game:GetService("TextService")
+		local textService = cloneref(game:GetService("TextService"))
 
 		local props = {
 			OffsetX = 0,

@@ -33,7 +33,7 @@ end
 
 local function main()
 	local Explorer = {}
-	local nodes,tree,listEntries,explorerOrders,searchResults,specResults = {},{},{},{},{},{}
+	local tree,listEntries,explorerOrders,searchResults,specResults = {},{},{},{},{}
 	local expanded
 	local entryTemplate,treeFrame,toolBar,descendantAddedCon,descendantRemovingCon,itemChangedCon
 	local ffa = game.FindFirstAncestorWhichIsA
@@ -42,7 +42,7 @@ local function main()
 	local updateDebounce,refreshDebounce = false,false
 	local nilNode = {Obj = Instance.new("Folder")}
 	local idCounter = 0
-	local scrollV,scrollH,selection,clipboard
+	local scrollV,scrollH,clipboard
 	local renameBox,renamingNode,searchFunc
 	local sortingEnabled,autoUpdateSearch
 	local table,math = table,math
@@ -565,14 +565,14 @@ local function main()
 				local listOffsetX = startX - treeFrame.AbsolutePosition.X
 				local listOffsetY = startY - treeFrame.AbsolutePosition.Y
 
-				releaseEvent = game:GetService("UserInputService").InputEnded:Connect(function(input)
+				releaseEvent = cloneref(game:GetService("UserInputService")).InputEnded:Connect(function(input)
 					if input.UserInputType == Enum.UserInputType.MouseButton1 then
 						releaseEvent:Disconnect()
 						mouseEvent:Disconnect()
 					end
 				end)
 
-				mouseEvent = game:GetService("UserInputService").InputChanged:Connect(function(input)
+				mouseEvent = cloneref(game:GetService("UserInputService")).InputChanged:Connect(function(input)
 					if input.UserInputType == Enum.UserInputType.MouseMovement then
 						local deltaX = mouse.X - startX
 						local deltaY = mouse.Y - startY
@@ -833,7 +833,7 @@ local function main()
 		local presentClasses = {}
 		local apiClasses = API.Classes
 
-		for i = 1,#sList do
+		for i = 1, #sList do
 			local node = sList[i]
 			local class = node.Class
 			if not class then class = node.Obj.ClassName node.Class = class end
@@ -847,10 +847,10 @@ local function main()
 
 		context:AddRegistered("CUT")
 		context:AddRegistered("COPY")
-		context:AddRegistered("PASTE",emptyClipboard)
+		context:AddRegistered("PASTE", emptyClipboard)
 		context:AddRegistered("DUPLICATE")
 		context:AddRegistered("DELETE")
-		context:AddRegistered("RENAME",#sList ~= 1)
+		context:AddRegistered("RENAME", #sList ~= 1)
 
 		context:AddDivider()
 		context:AddRegistered("GROUP")
@@ -861,12 +861,8 @@ local function main()
 		context:AddRegistered("COLLAPSE_ALL")
 
 		context:AddDivider()
-		if expanded == Explorer.SearchExpanded then
-			context:AddRegistered("CLEAR_SEARCH_AND_JUMP_TO")
-		end
-		if env.setclipboard then
-			context:AddRegistered("COPY_PATH")
-		end
+		if expanded == Explorer.SearchExpanded then context:AddRegistered("CLEAR_SEARCH_AND_JUMP_TO") end
+		if env.setclipboard then context:AddRegistered("COPY_PATH") end
 		context:AddRegistered("INSERT_OBJECT")
 		context:AddRegistered("SAVE_INST")
 		context:AddRegistered("CALL_FUNCTION")
@@ -881,20 +877,19 @@ local function main()
 			context:AddRegistered("VIEW_OBJECT")
 		end
 
-		if presentClasses["Player"] then
-			context:AddRegistered("SELECT_CHARACTER")
-		end
-
-		if presentClasses["LuaSourceContainer"] then
-			context:AddRegistered("VIEW_SCRIPT")
-		end
+		if presentClasses["TouchTransmitter"] then context:AddRegistered("FIRE_TOUCHTRANSMITTER", firetouchinterest == nil) end
+		if presentClasses["ClickDetector"] then context:AddRegistered("FIRE_CLICKDETECTOR", fireclickdetector == nil) end
+		if presentClasses["ProximityPrompt"] then context:AddRegistered("FIRE_PROXIMITYPROMPT", fireproximityprompt == nil) end
+		if presentClasses["Player"] then context:AddRegistered("SELECT_CHARACTER") end
+		if presentClasses["Players"] then context:AddRegistered("SELECT_LOCAL_PLAYER") end
+		if presentClasses["LuaSourceContainer"] then context:AddRegistered("VIEW_SCRIPT") end
 
 		if sMap[nilNode] then
 			context:AddRegistered("REFRESH_NIL")
 			context:AddRegistered("HIDE_NIL")
 		end
 
-		Explorer.LastRightClickX,Explorer.LastRightClickY = Main.Mouse.X,Main.Mouse.Y
+		Explorer.LastRightClickX, Explorer.LastRightClickY = Main.Mouse.X,Main.Mouse.Y
 		context:Show()
 	end
 
@@ -1176,15 +1171,21 @@ local function main()
 			end
 		end})
 
+		local clth = function(str)
+			if str:sub(1, 28) == "game:GetService(\"Workspace\")" then str = str:gsub("game:GetService%(\"Workspace\"%)", "workspace", 1) end
+			if str:sub(1, 27 + #plr.Name) == "game:GetService(\"Players\")." .. plr.Name then str = str:gsub("game:GetService%(\"Players\"%)." .. plr.Name, "game:GetService(\"Players\").LocalPlayer", 1) end
+			return str
+		end
+
 		context:Register("COPY_PATH",{Name = "Copy Path", OnClick = function()
 			local sList = selection.List
 			if #sList == 1 then
-				env.setclipboard(Explorer.GetInstancePath(sList[1].Obj))
+				env.setclipboard(clth(Explorer.GetInstancePath(sList[1].Obj)))
 			elseif #sList > 1 then
 				local resList = {"{"}
 				local count = 2
 				for i = 1,#sList do
-					local path = "\t"..Explorer.GetInstancePath(sList[i].Obj)..","
+					local path = "\t"..clth(Explorer.GetInstancePath(sList[i].Obj))..","
 					if #path > 0 then
 						resList[count] = path
 						count = count+1
@@ -1237,6 +1238,24 @@ local function main()
 			workspace.CurrentCamera.CameraSubject = plr.Character
 		end})
 
+		context:Register("FIRE_TOUCHTRANSMITTER",{Name = "Fire TouchTransmitter", IconMap = Explorer.ClassIcons, Icon = 37, OnClick = function()
+			local hrp = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+			if not hrp then return end
+			for _, v in ipairs(selection.List) do if v.Obj and v.Obj:IsA("TouchTransmitter") then firetouchinterest(hrp, v.Obj.Parent, 0) end end
+		end})
+
+		context:Register("FIRE_CLICKDETECTOR",{Name = "Fire ClickDetector", IconMap = Explorer.ClassIcons, Icon = 41, OnClick = function()
+			local hrp = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+			if not hrp then return end
+			for _, v in ipairs(selection.List) do if v.Obj and v.Obj:IsA("ClickDetector") then fireclickdetector(v.Obj) end end
+		end})
+
+		context:Register("FIRE_PROXIMITYPROMPT",{Name = "Fire ProximityPrompt", IconMap = Explorer.ClassIcons, Icon = 124, OnClick = function()
+			local hrp = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+			if not hrp then return end
+			for _, v in ipairs(selection.List) do if v.Obj and v.Obj:IsA("ProximityPrompt") then fireproximityprompt(v.Obj) end end
+		end})
+
 		context:Register("VIEW_SCRIPT",{Name = "View Script", IconMap = Explorer.MiscIcons, Icon = "ViewScript", OnClick = function()
 			local scr = selection.List[1] and selection.List[1].Obj
 			if scr then ScriptViewer.ViewScript(scr) end
@@ -1262,6 +1281,10 @@ local function main()
 			else
 				Explorer.Refresh()
 			end
+		end})
+
+		context:Register("SELECT_LOCAL_PLAYER",{Name = "Select Local Player", IconMap = Explorer.ClassIcons, Icon = 9, OnClick = function()
+			pcall(function() if nodes[plr] then selection:Set(nodes[plr]) Explorer.ViewNode(nodes[plr]) end end)
 		end})
 
 		context:Register("REFRESH_NIL",{Name = "Refresh Nil Instances", OnClick = function()
@@ -1400,6 +1423,10 @@ local function main()
 				elseif parObj == game and API.Classes[className] and API.Classes[className].Tags.Service then
 					indexName = ':GetService("'..className..'")'
 				end
+			elseif parObj == nil then
+				local getnil = "local getNil = function(name, class) for _, v in next, getnilinstances() do if v.ClassName == class and v.Name == name then return v end end end"
+				local gotnil = "\n\ngetNil(\"%s\", \"%s\")"
+				indexName = getnil .. gotnil:format(curObj.Name, className)
 			end
 
 			path = indexName..path

@@ -25,7 +25,7 @@ DefaultSettings = (function()
 			ClearOnFocus = false,
 			LoadstringInput = true,
 			NumberRounding = 3,
-			ShowAttributes = false,
+			ShowAttributes = true, -- enabled because yes
 			MaxAttributes = 50,
 			ScaleType = 1 -- 0 Full Name Shown, 1 Equal Halves
 		},
