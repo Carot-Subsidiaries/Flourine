@@ -15,7 +15,7 @@ def addModuleFile(path, last):
     moduleName = os.path.splitext(os.path.basename(path))[0]
     moduleSource = readfile(path)
 
-    embedStr = embedStr + moduleName + ' = function()\n' + moduleSource + f'\nend{'' if last else ','}\n'
+    embedStr = embedStr + moduleName + ' = function()\n' + moduleSource + f'\nend{"" if last else ","}\n'
 
 for i, filename in enumerate(files, 1):
     addModuleFile("modules/" + filename, i == len(files))
