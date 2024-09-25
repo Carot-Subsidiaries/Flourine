@@ -24,6 +24,6 @@ embedStr = embedStr + "}"
 embedStr = embedStr + "\n\n" + readfile("main.lua")
 embedStr = readfile("PresetText.lua") + "\n\n" + embedStr
 
-file = open("out.lua","w")
+file = open("flourine.lua","w")
 file.write(embedStr)
 file.close()
