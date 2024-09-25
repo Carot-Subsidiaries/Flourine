@@ -1,6 +1,11 @@
 # Flourine - Experience Ultimate Debugging
 
-## Building
+## Using
+
+### Loadstring
+```lua
+loadstring(game:HttpGet("https://github.com/Carot-Subsidiaries/Flourine/raw/refs/heads/master/loadstring.lua"), "FlourineLoadstring")()
+```
 
 ### Compiling
 1. Ensure you have Python 3 installed
