@@ -89,6 +89,7 @@ local function main()
 		dumpbtn.Size = UDim2.new(0.3,0,0,20)
 		dumpbtn.Text = "Dump Functions"
 		dumpbtn.TextColor3 = Color3.new(1,1,1)
+
 		dumpbtn.MouseButton1Click:Connect(function()
 			if PreviousScr ~= nil then
 				pcall(function()
@@ -181,9 +182,5 @@ local function main()
 	return ScriptViewer
 end
 
--- TODO: Remove when open source
-if gethsfuncs then
-	_G.moduleData = {InitDeps = initDeps, InitAfterMain = initAfterMain, Main = main}
-else
-	return {InitDeps = initDeps, InitAfterMain = initAfterMain, Main = main}
+return {InitDeps = initDeps, InitAfterMain = initAfterMain, Main = main}
 end

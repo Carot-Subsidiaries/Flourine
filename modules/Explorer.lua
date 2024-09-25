@@ -837,7 +837,6 @@ local function main()
 			local node = sList[i]
 			local class = node.Class
 			if not class then class = node.Obj.ClassName node.Class = class end
-
 			local curClass = apiClasses[class]
 			while curClass and not presentClasses[curClass.Name] do
 				presentClasses[curClass.Name] = true
@@ -889,7 +888,7 @@ local function main()
 			context:AddRegistered("HIDE_NIL")
 		end
 
-		Explorer.LastRightClickX, Explorer.LastRightClickY = Main.Mouse.X,Main.Mouse.Y
+		Explorer.LastRightClickX, Explorer.LastRightClickY = Main.Mouse.X, Main.Mouse.Y
 		context:Show()
 	end
 
@@ -2247,9 +2246,4 @@ return search]==]
 	return Explorer
 end
 
--- TODO: Remove when open source
-if gethsfuncs then
-	_G.moduleData = {InitDeps = initDeps, InitAfterMain = initAfterMain, Main = main}
-else
-	return {InitDeps = initDeps, InitAfterMain = initAfterMain, Main = main}
-end
+return {InitDeps = initDeps, InitAfterMain = initAfterMain, Main = main}

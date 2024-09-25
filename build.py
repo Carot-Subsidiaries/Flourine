@@ -9,16 +9,16 @@ def readfile(path):
     file.close()
     return str
 
-def addModuleFile(path):
+def addModuleFile(path, last):
     global embedStr
 
     moduleName = os.path.splitext(os.path.basename(path))[0]
     moduleSource = readfile(path)
 
-    embedStr = embedStr + '["' + moduleName + '"] = function()\n' + moduleSource + '\nend,\n'
+    embedStr = embedStr + moduleName + ' = function()\n' + moduleSource + f'\nend{'' if last else ','}\n'
 
-for filename in files:
-    addModuleFile("modules/" + filename)
+for i, filename in enumerate(files, 1):
+    addModuleFile("modules/" + filename, i == len(files))
 
 embedStr = embedStr + "}"
 embedStr = embedStr + "\n\n" + readfile("main.lua")

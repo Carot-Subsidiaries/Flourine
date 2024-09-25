@@ -416,7 +416,7 @@ local function main()
 
 	Lib.ProtectedGuis = {}
 
-	Lib.ShowGui = function(gui)
+    Lib.ShowGui = function(gui)
         if env.gethui then
             gui.Parent = env.gethui()
         elseif env.protectgui then
@@ -4222,7 +4222,7 @@ local function main()
 			local blueInput = pickerFrame.Blue.Input
 
 			local user = cloneref(game:GetService("UserInputService"))
-			local mouse = cloneref(game:GetService("UserInputService")).LocalPlayer:GetMouse()
+			local mouse = cloneref(game:GetService("Players")).LocalPlayer:GetMouse()
 
 			local hue,sat,val = 0,0,1
 			local red,green,blue = 1,1,1
@@ -4606,7 +4606,7 @@ local function main()
 			local resetSequence = nil
 
 			local user = cloneref(game:GetService("UserInputService"))
-			local mouse = cloneref(game:GetService("UserInputService")).LocalPlayer:GetMouse()
+			local mouse = cloneref(game:GetService("Players")).LocalPlayer:GetMouse()
 
 			for i = 2,10 do
 				local newLine = Instance.new("Frame")
@@ -5081,7 +5081,7 @@ local function main()
 			local topClose = pickerTopBar.Close
 
 			local user = cloneref(game:GetService("UserInputService"))
-			local mouse = cloneref(game:GetService("UserInputService")).LocalPlayer:GetMouse()
+			local mouse = cloneref(game:GetService("Players")).LocalPlayer:GetMouse()
 
 			local colors = {{Color3.new(1,0,1),0},{Color3.new(0.2,0.9,0.2),0.2},{Color3.new(0.4,0.5,0.9),0.7},{Color3.new(0.6,1,1),1}}
 			local resetSequence = nil
@@ -5742,9 +5742,4 @@ local function main()
 	return Lib
 end
 
--- TODO: Remove when open source
-if gethsfuncs then
-	_G.moduleData = {InitDeps = initDeps, InitAfterMain = initAfterMain, Main = main}
-else
-	return {InitDeps = initDeps, InitAfterMain = initAfterMain, Main = main}
-end
+return {InitDeps = initDeps, InitAfterMain = initAfterMain, Main = main}

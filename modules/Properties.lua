@@ -388,6 +388,7 @@ local function main()
 	end
 
 	-- Fetches the properties to be displayed based on the explorer selection
+	Settings.Properties.ShowAttributes = true -- im making it true anyway since its useful by default and people complain
 	Properties.ShowExplorerProps = function()
 		local maxConflictCheck = Settings.Properties.MaxConflictCheck
 		local sList = Explorer.Selection.List
@@ -1899,9 +1900,4 @@ local function main()
 	return Properties
 end
 
--- TODO: Remove when open source
-if gethsfuncs then
-	_G.moduleData = {InitDeps = initDeps, InitAfterMain = initAfterMain, Main = main}
-else
-	return {InitDeps = initDeps, InitAfterMain = initAfterMain, Main = main}
-end
+return {InitDeps = initDeps, InitAfterMain = initAfterMain, Main = main}
