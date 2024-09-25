@@ -2,4 +2,4 @@ local linkToZip = "https://nightly.link/Carot-Subsidiaries/Flourine/workflows/bu
 
 local zzlib = loadstring(game:HttpGet("https://github.com/Carot-Subsidiaries/loadZip/raw/refs/heads/master/inflate-bwo.lua"), "loadZip")()
 
-loadstring(zzlib.unzip(linkToZip, "lua-5.3.4/README"), "Flourine")()
+loadstring(zzlib.unzip(linkToZip, "flourine.lua"), "Flourine")()
