@@ -1,21 +1,3 @@
---[[
-	New Dex
-	Final Version
-
-	Maintained by @ILiekCarot
-	Developed by Moon
-	Contributions skidded off Infinite Yield: @Toon-arch & @joeengo
-	
-	Dex is a debugging suite designed to help the user debug games and find any potential vulnerabilities.
-	
-	This is the final version of this script.
-	You are encouraged to edit, fork, do whatever with this. I pretty much won't be updating it anymore.
-	Though I would appreciate it if you kept the credits in the script if you enjoy this hard work.
-	
-	If you want more info, you can join the server: https://discord.io/zinnia
-	Note that very limited to no support will be provided.
-]]
-
 -- Main vars
 local Main, Explorer, Properties, ScriptViewer, DefaultSettings, Notebook, Serializer, Lib
 local API, RMD
