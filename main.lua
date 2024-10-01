@@ -268,7 +268,6 @@ Main = (function()
 			end
         end)
 		env.decompile = decompile or env.sdecompile
-		env.sdecompile = Sde
         env.protectgui = protect_gui or (syn and syn.protect_gui)
         env.gethui = gethui or get_hidden_gui
         env.setclipboard = setclipboard or toclipboard or set_clipboard or (Clipboard and Clipboard.set)
