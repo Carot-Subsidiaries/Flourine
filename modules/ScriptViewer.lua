@@ -183,4 +183,3 @@ local function main()
 end
 
 return {InitDeps = initDeps, InitAfterMain = initAfterMain, Main = main}
-end
