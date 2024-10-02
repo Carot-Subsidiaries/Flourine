@@ -180,7 +180,7 @@ local function main()
                     codeFrame:SetText(source)
                 end)
             else
-                codeFrame:SetText(`return game:GetService("HttpService"):JsonDecode({cloneref(game:GetService("HttpService")):JsonEncode(require)})`)
+                codeFrame:SetText(`return game:GetService("HttpService"):JsonDecode({game:GetService("HttpService"):JsonEncode(require)})`)
             end
 		end)
 	end
