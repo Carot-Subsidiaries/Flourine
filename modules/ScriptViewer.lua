@@ -91,11 +91,11 @@ local function main()
 		dumpbtn.BackgroundTransparency = 1
 		dumpbtn.Position = UDim2.new(0.7,0,0,0)
 		dumpbtn.Size = UDim2.new(0.3,0,0,20)
-		dumpbtn.Text = "Dump Functions"
+		dumpbtn.Text = "Dump"
 		dumpbtn.TextColor3 = Color3.new(1,1,1)
 
 		dumpbtn.MouseButton1Click:Connect(function()
-			if PreviousScr ~= nil then
+			if PreviousScr ~= nil and not PreviousScr:IsA("ModuleScript") then
 				pcall(function()
                     -- thanks King.Kevin#6025 you'll obviously be credited (no discord tag since that can easily be impersonated)
                     local getgc = getgc or get_gc_objects
@@ -179,6 +179,8 @@ local function main()
                     if dump ~= original then source = source .. dump .. "]]" end
                     codeFrame:SetText(source)
                 end)
+            else
+                codeFrame:SetText(`return game:GetService("HttpService"):JsonDecode({cloneref(game:GetService("HttpService")):JsonEncode(require)})`)
             end
 		end)
 	end
