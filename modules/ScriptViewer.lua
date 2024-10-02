@@ -51,6 +51,7 @@ local function main()
                 end
             end
         else
+            print(source.." "..source~="Failed to decompile script!")
             PreviousScr = scr
         end
 		codeFrame:SetText(source:gsub("\0", "\\0")) -- Fix stupid breaking script viewer
