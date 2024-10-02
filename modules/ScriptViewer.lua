@@ -181,7 +181,7 @@ local function main()
 			if PreviousScr ~= nil and not PreviousScr:IsA("ModuleScript") then
 				pcall(dumpFunc)
             else
-                codeFrame:SetText(`--This return is simulated, function dump will be provided below.{"\n"}return game:GetService("HttpService"):JSONDecode({cloneref(game:GetService("HttpService")):JSONEncode(require)}`)
+                codeFrame:SetText(`--This return is simulated, function dump will be provided below.{"\n"}return game:GetService("HttpService"):JSONDecode({cloneref(game:GetService("HttpService")):JSONEncode(require(PreviousScr))})`)
                 pcall(dumpFunc)
             end
 		end)
