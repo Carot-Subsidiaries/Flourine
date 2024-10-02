@@ -37,17 +37,21 @@ local function main()
 	local PreviousScr = nil
 
 	ScriptViewer.ViewScript = function(scr)
-		local success, source = pcall(env.decompile or function() end, scr)
-		if (not success or not source or source == "Failed to decompile script!") and env.decompile == env.sdecompile then
-            source, PreviousScr = "-- [FLOURINE] Source failed to decompile", nil
-        else
-            local success, source = pcall(env.sdecompile or function() end, scr)
-            if (not success or not source) then
+		local success, source = pcall(env.decompile, scr)
+		if not (success and source) then
+            if env.decompile == env.sdecompile then
                 source, PreviousScr = "-- [FLOURINE] Source failed to decompile", nil
             else
-                source = "-- [FLOURINE] Source decompiled using fallback decompiler (courtesy of Konstant)\n" .. source
-                PreviousScr = scr
+                local success, source = pcall(env.sdecompile, scr)
+                if not (success and source) then
+                    source, PreviousScr = "-- [FLOURINE] Source failed to decompile", nil
+                else
+                    source = "-- [FLOURINE] Source decompiled using fallback decompiler (courtesy of Konstant)\n" .. source
+                    PreviousScr = scr
+                end
             end
+        else
+            PreviousScr = scr
         end
 		codeFrame:SetText(source:gsub("\0", "\\0")) -- Fix stupid breaking script viewer
 		window:Show()
