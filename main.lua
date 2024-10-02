@@ -246,28 +246,7 @@ Main = (function()
         -- other
         --env.setfflag = setfflag
         env.request = (syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request
-		env.sdecompile = (env.getscriptbytecode and env.request and function(scr)
-            local s, bytecode = pcall(env.getscriptbytecode, scr)
-            if not s then
-                return "failed to get bytecode " .. tostring(bytecode)
-            end
-
-            local response = env.request({
-                Url = "http://api.plusgiant5.com/konstant/decompile",
-                Method = "POST",
-                Headers = {
-                    ["Content-Type"] = "text/plain"
-                },
-                Body = bytecode
-            })
-
-            if (httpResult.StatusCode ~= 200) then
-				return `-- Error occured while requesting the API, error:\n\n--[[\n{httpResult.Body}\n--]]`
-			else
-				return httpResult.Body
-			end
-        end)
-		env.decompile = kdecompile or decompile or env.sdecompile
+		env.decompile = odecompile or decompile
         env.protectgui = protect_gui or (syn and syn.protect_gui)
         env.gethui = gethui or get_hidden_gui
         env.setclipboard = setclipboard or toclipboard or set_clipboard or (Clipboard and Clipboard.set)

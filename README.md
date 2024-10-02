@@ -6,6 +6,7 @@
 ```lua
 loadstring(game:HttpGet("https://github.com/Carot-Subsidiaries/Flourine/raw/refs/heads/master/loadstring.lua"), "FlourineLoadstring")()
 ```
+You can set the global variable odecompile to a custom decompiler to override the decompiler, this is done by default on Wave.
 
 ### Compiling
 1. Ensure you have Python 3 installed
@@ -51,7 +52,6 @@ loadstring(game:HttpGet("https://github.com/Carot-Subsidiaries/Flourine/raw/refs
 	* Access to flourine's api for windows, modules, etc
 
 ## Current work
-- Click to select
 - Saving (instance specific in right click menu, and a menu for whole map saving)
 - Settings menu
 - Tabs in script viewer
