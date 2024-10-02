@@ -38,7 +38,7 @@ local function main()
 
 	ScriptViewer.ViewScript = function(scr)
 		local success, source = pcall(env.decompile, scr)
-		if not (success and source) then
+		if not (success and source and source ~= "Failed to decompile script!") then
             if env.decompile == env.sdecompile then
                 source, PreviousScr = "-- [FLOURINE] Source failed to decompile", nil
             else
