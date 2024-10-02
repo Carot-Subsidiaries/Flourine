@@ -31,5 +31,11 @@ end
 
 return function(scriptPath: Script | ModuleScript | LocalScript): string
     local decompiled = call("/konstant/decompile", scriptPath)
-    return (decompiled:gsub("-- Decompiled with Konstant V", "-- [FLOURINE] Used fallback decompiler(Konstant V\n")):gsub(", a fast Luau decompiler made in Luau by plusgiant5", " by plusgiant5 & lovrewe.")
+    return (
+        (
+            (
+                decompiled:gsub("-- Decompiled with Konstant V", "-- [FLOURINE] Used fallback decompiler(Konstant V")
+            ):gsub(", a fast Luau decompiler made in Luau by plusgiant5", " by plusgiant5 & lovrewe.")
+        ):gsub("\n", "")
+    )..")\n"
 end
