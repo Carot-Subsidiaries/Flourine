@@ -43,7 +43,7 @@ local function main()
         else
             PreviousScr = scr
         end
-		codeFrame:SetText(source:gsub("\0", "\\0")) -- Fix stupid breaking script viewer
+		codeFrame:SetText((source:gsub("\0", "\\0")):gsub("\t", "    ")) -- Fix stupid breaking script viewer
 		window:Show()
 	end
 
