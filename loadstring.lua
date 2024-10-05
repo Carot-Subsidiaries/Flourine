@@ -2,7 +2,7 @@ local zip = game:HttpGet("https://nightly.link/Carot-Subsidiaries/Flourine/workf
 
 local zzlib = loadstring(game:HttpGet("https://raw.githubusercontent.com/Carot-Subsidiaries/loadZip/refs/heads/master/zzlib.lua"), "loadZip")()
 
-if --[[(identifyexecutor() == "Wave" and not odecompile) or ]](not decompile and env.getscriptbytecode and env.request) and true then
+if --[[(identifyexecutor() == "Wave" and not odecompile) or ]](not decompile and env.getscriptbytecode and env.request) then
     getgenv().odecompile = loadstring(game:HttpGet("https://github.com/Carot-Subsidiaries/Flourine/raw/refs/heads/master/decompiler.lua"), "Konstant")()
 end
 
